@@ -15,5 +15,5 @@ Tile::~Tile()
 
 void Tile::setPosition(int x, int y){
   this->sprite.setPosition( x, y);
-  this->text.setPosition( x + 25, y + 55);
+  this->text.setPosition( x + TILE_WIDTH/2 - 10, y + TILE_HEIGHT/2 - 10);
 }
