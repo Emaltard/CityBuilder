@@ -8,8 +8,6 @@
 class Map : public sf::Drawable
 {
 private:
-sf::Texture texture_grass;
-sf::Texture texture_normal;
 
 sf::Sprite sprite;
 sf::Font font;
@@ -21,6 +19,7 @@ Map(int size);
 ~Map();
 std::vector<Tile*> map;
 std::vector<Tile*> tiles_selected;
+std::vector<sf::Texture> texture_vector;
 sf::Vector2i screen_to_map(sf::Vector2i screen_pixels);
 
 void select_tile(sf::Vector2i coord);

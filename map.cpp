@@ -6,11 +6,11 @@ Map::Map(int size){
         this->size = size;
         this->offset.x = 400-32;
         this->offset.y = 0;
-
-        this->texture_grass.loadFromFile("Media/grass.iso.png");
-        this->texture_grass.setSmooth(true);
-        this->texture_normal.loadFromFile("Media/normal.iso.png");
-        this->texture_normal.setSmooth(true);
+        sf::Texture grass, water;
+        grass.loadFromFile("Media/grass.iso.png");
+        water.loadFromFile("Media/normal.iso.png");
+        this->texture_vector.push_back(grass);
+        this->texture_vector.push_back(water);
         this->font.loadFromFile("Media/font.ttf");
 
         for(int i = 0; i<this->size; i++) {
@@ -18,9 +18,9 @@ Map::Map(int size){
                         int current_tile = i * this->size + j;
                         this->map.push_back(new Tile(this->sprite, std::to_string(current_tile)));
                         if(i<9)
-                                this->map[current_tile]->sprite.setTexture(this->texture_grass);
+                                this->map[current_tile]->sprite.setTexture(this->texture_vector[0]);
                         else
-                                this->map[current_tile]->sprite.setTexture(this->texture_normal);
+                                this->map[current_tile]->sprite.setTexture(this->texture_vector[1]);
                         this->map[current_tile]->setPosition(TILE_WIDTH/2*j - TILE_WIDTH/2*i + this->offset.x, TILE_HEIGHT/2*j + TILE_HEIGHT/2*i + this->offset.y);
                         this->map[current_tile]->text.setFont(this->font);
                 }

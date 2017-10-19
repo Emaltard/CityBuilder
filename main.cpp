@@ -10,6 +10,17 @@ int main()
         App.setFramerateLimit(30);
 
         Map map(10);
+        sf::Sprite ui_grass;
+        sf::Sprite ui_water;
+        ui_grass.setTexture(map.texture_vector[0]);
+        ui_water.setTexture(map.texture_vector[1]);
+
+        ui_water.setPosition(20,500);
+        ui_grass.setPosition(100,500);
+
+        for (auto it = begin (map.texture_vector); it != end (map.texture_vector); ++it) {
+
+        }
 
         bool ctrl_hold = false;
 
@@ -64,6 +75,8 @@ int main()
                 App.clear();
 
                 App.draw(map);
+                App.draw(ui_water);
+                App.draw(ui_grass);
 
                 App.display();
         }
