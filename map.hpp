@@ -5,25 +5,27 @@
 
 #include "tile.hpp"
 
-#define SIZE 10
-
 class Map : public sf::Drawable
 {
-  private :
-    sf::Texture texture_grass;
-    sf::Sprite sprite;
-    sf::Font font;
-  public :
+private:
+sf::Texture texture_grass;
+sf::Texture texture_normal;
 
-    Map();
-    ~Map();
-    std::vector<Tile*> map;
-    std::vector<Tile*> tiles_selected;
-    sf::Vector2i screen_to_map(sf::Vector2i screen_pixels);
+sf::Sprite sprite;
+sf::Font font;
+public:
+int size;
+sf::Vector2i offset;
 
-    void select_tile(sf::Vector2i coord);
+Map(int size);
+~Map();
+std::vector<Tile*> map;
+std::vector<Tile*> tiles_selected;
+sf::Vector2i screen_to_map(sf::Vector2i screen_pixels);
 
-    virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
+void select_tile(sf::Vector2i coord);
+
+virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 
 };
 

@@ -10,19 +10,19 @@
 
 class Tile
 {
-	private:
+private:
 
 
-	public:
-    sf::Sprite sprite;
-    sf::Text text;
+public:
+sf::Sprite sprite;
+sf::Text text;
 
-    sf::Vector2i coordinates;
+sf::Vector2i coordinates;
 
-    void setPosition(int x, int y);
+void setPosition(int x, int y);
 
-		Tile(sf::Sprite sprite, std::string text);
-		~Tile();
+Tile(sf::Sprite sprite, std::string text);
+~Tile();
 };
 
 #endif /* TILE_HPP */
