@@ -17,6 +17,8 @@ public:
 sf::Sprite sprite;
 sf::Text text;
 
+int type_id;
+
 sf::Vector2i coordinates;
 
 void setPosition(int x, int y);

@@ -6,6 +6,7 @@ Tile::Tile(sf::Sprite sprite, std::string text){
         this->text.setString(text);
         this->text.setFillColor(sf::Color::Red);
         this->text.setCharacterSize(15);
+        this->type_id = 0;
 }
 
 Tile::~Tile()

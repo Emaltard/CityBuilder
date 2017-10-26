@@ -4,6 +4,8 @@
 #include <SFML/Graphics.hpp>
 
 #include "tile.hpp"
+#include <fstream>
+#include <iostream>
 
 class Map : public sf::Drawable
 {
@@ -15,6 +17,7 @@ public:
 int size;
 sf::Vector2i offset;
 
+Map(std::ifstream &file);
 Map(int size);
 ~Map();
 std::vector<Tile*> map;
@@ -23,8 +26,11 @@ std::vector<sf::Texture> texture_vector;
 sf::Vector2i screen_to_map(sf::Vector2i screen_pixels);
 
 void select_tile(sf::Vector2i coord);
+void set_tile_type(sf::Vector2i coord_map,int id);
 
 virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
+
+void save();
 
 };
 
