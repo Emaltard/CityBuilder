@@ -24,6 +24,9 @@ include_directories("${PROJECT_BINARY_DIR}")
 set(EXECUTABLE_NAME "CityBuilder")
 add_executable(${EXECUTABLE_NAME} main.cpp map.cpp tile.cpp)
 
+#Add all Media files to Build Directory
+file(COPY ${PROJECT_SOURCE_DIR}/Media DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+
 
 # Detect and add SFML
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake_modules" ${CMAKE_MODULE_PATH})
