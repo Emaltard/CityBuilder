@@ -33,3 +33,6 @@
 
 # Zip
 *.zip
+
+# build(cmake)
+/build
