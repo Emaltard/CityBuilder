@@ -2,7 +2,6 @@
 
 Map::Map(std::ifstream &file){
         if(file.is_open()) {
-                std::cerr << "File open" << '\n';
                 file >> this->size;
                 this->offset.x = 400-32;
                 this->offset.y = 0;

@@ -8,7 +8,14 @@ int main()
         App.setFramerateLimit(60);
 
         std::ifstream file("map.txt");
-        Map map(file);
+        Map* map;
+        if(file.is_open()) {
+                map = new Map(file);
+        }
+        else{
+                map = new Map(10);
+        }
+
         sf::Sprite ui_grass;
         sf::Sprite ui_water;
         sf::RectangleShape rectangle(sf::Vector2f(800, 100));
@@ -29,13 +36,13 @@ int main()
 
 
 
-        ui_grass.setTexture(map.texture_vector[0]);
-        ui_water.setTexture(map.texture_vector[1]);
+        ui_grass.setTexture(map->texture_vector[0]);
+        ui_water.setTexture(map->texture_vector[1]);
 
         ui_grass.setPosition(15,525);
         ui_water.setPosition(99,525);
 
-        for (auto it = begin (map.texture_vector); it != end (map.texture_vector); ++it) {
+        for (auto it = begin (map->texture_vector); it != end (map->texture_vector); ++it) {
 
         }
 
@@ -50,13 +57,13 @@ int main()
                         switch (Event.type)
                         {
                         case sf::Event::Closed:
-                                map.save();
+                                map->save();
                                 App.close();
                                 break;
                         case sf::Event::KeyPressed:
                                 if (Event.key.code == sf::Keyboard::Escape)
                                 {
-                                        map.save();
+                                        map->save();
                                         App.close();
                                 }
                                 else if(Event.key.code == sf::Keyboard::LControl) {
@@ -71,10 +78,10 @@ int main()
                         case sf::Event::MouseButtonPressed:
                                 if(Event.mouseButton.button == sf::Mouse::Left) {
                                         if(!ctrl_hold) {
-                                                for(std::vector<Tile*>::iterator it = map.tiles_selected.begin(); it != map.tiles_selected.end(); ++it) {
+                                                for(std::vector<Tile*>::iterator it = map->tiles_selected.begin(); it != map->tiles_selected.end(); ++it) {
                                                         (*it)->sprite.setColor(sf::Color(255, 255, 255));
                                                 }
-                                                map.tiles_selected.clear();
+                                                map->tiles_selected.clear();
 
 
                                                 if(Event.mouseButton.y>500 && Event.mouseButton.y<600) {
@@ -90,16 +97,16 @@ int main()
                                                         }
                                                 }
                                         }else if(Event.mouseButton.y<500) {
-                                                sf::Vector2i coord_map = map.screen_to_map(sf::Vector2i(Event.mouseButton.x, Event.mouseButton.y));
-                                                map.select_tile(coord_map);
+                                                sf::Vector2i coord_map = map->screen_to_map(sf::Vector2i(Event.mouseButton.x, Event.mouseButton.y));
+                                                map->select_tile(coord_map);
                                         }
 
                                 }
                                 if(Event.mouseButton.button == sf::Mouse::Right) {
                                         if(Event.mouseButton.y<500) {
                                                 if(type_id) {
-                                                        sf::Vector2i coord_map = map.screen_to_map(sf::Vector2i(Event.mouseButton.x, Event.mouseButton.y));
-                                                        map.set_tile_type(coord_map, type_id);
+                                                        sf::Vector2i coord_map = map->screen_to_map(sf::Vector2i(Event.mouseButton.x, Event.mouseButton.y));
+                                                        map->set_tile_type(coord_map, type_id);
                                                 }
                                         }
                                 }
@@ -111,7 +118,7 @@ int main()
 
                 App.clear();
 
-                App.draw(map);
+                App.draw(*map);
                 App.draw(rectangle);
                 App.draw(rectangle1);
                 App.draw(rectangle2);
