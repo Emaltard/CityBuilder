@@ -1,5 +1,7 @@
 #Change this if you need to target a specific CMake version
 cmake_minimum_required(VERSION 2.6)
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 
 # Enable debug symbols by default
@@ -37,7 +39,3 @@ if(SFML_FOUND)
   include_directories(${SFML_INCLUDE_DIR})
   target_link_libraries(${EXECUTABLE_NAME} ${SFML_LIBRARIES} ${SFML_DEPENDENCIES})
 endif()
-
-
-# Install target
-install(TARGETS ${EXECUTABLE_NAME} DESTINATION bin)
