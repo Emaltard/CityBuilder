@@ -24,7 +24,8 @@ include_directories("${PROJECT_BINARY_DIR}")
 
 # Define sources and executable
 set(EXECUTABLE_NAME "CityBuilder")
-add_executable(${EXECUTABLE_NAME} main.cpp map.cpp tile.cpp)
+file(GLOB SOURCES src/*.cpp)
+add_executable(${EXECUTABLE_NAME} ${SOURCES})
 
 #Add all Media files to Build Directory
 file(COPY ${PROJECT_SOURCE_DIR}/Media DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
