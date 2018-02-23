@@ -17,6 +17,8 @@ public:
 int size;
 sf::Vector2i offset;
 
+const int map_size_max = 100;
+
 Map(std::ifstream &file);
 Map(int size);
 ~Map();
@@ -27,6 +29,10 @@ sf::Vector2i screen_to_map(sf::Vector2i screen_pixels);
 
 void select_tile(sf::Vector2i coord);
 void set_tile_type(sf::Vector2i coord_map,int id);
+
+void change_map_size(int size);
+
+int get_map_size();
 
 virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 
