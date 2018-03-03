@@ -35,14 +35,14 @@ endif()
 # users specify IMGUI_ROOT. See:
 #    https://github.com/ocornut/imgui/pull/255
 
-    set(IMGUI_ROOT "${CMAKE_SOURCE_DIR}" CACHE PATH "imgui top-level directory")
+    set(IMGUI_ROOT "${CMAKE_SOURCE_DIR}/imgui" CACHE PATH "imgui top-level directory")
 if(NOT IMGUI_ROOT)
     message("---> ${CMAKE_SOURCE_DIR}")
-    set(IMGUI_ROOT "${CMAKE_SOURCE_DIR}" CACHE PATH "imgui top-level directory")
+    set(IMGUI_ROOT "${CMAKE_SOURCE_DIR}/imgui" CACHE PATH "imgui top-level directory")
     message("---> ImGui directory not found. Set IMGUI_ROOT to imgui's top-level path (containing \"imgui.cpp\" and \"imgui.h\" files).\n")
 endif()
 message("---> ${CMAKE_SOURCE_DIR}")
-set(IMGUI_ROOT "${CMAKE_SOURCE_DIR}" CACHE PATH "imgui top-level directory")
+set(IMGUI_ROOT "${CMAKE_SOURCE_DIR}/imgui" CACHE PATH "imgui top-level directory")
 message("---> ${IMGUI_ROOT}")
 # Do a pseudo find files for ImGui once IMGUI_ROOT is set
 if(IMGUI_ROOT)
@@ -66,7 +66,7 @@ if(IMGUI_ROOT)
 endif()
 
 # Glob up both source and headers as sources for VS users.
-file(GLOB IMGUI_SFML_FILES "${PROJECT_SOURCE_DIR}/*.cpp" "${PROJECT_SOURCE_DIR}/*.h")
+file(GLOB IMGUI_SFML_FILES "${PROJECT_SOURCE_DIR}/imgui/*.cpp" "${PROJECT_SOURCE_DIR}/imgui/*.h")
 
 # Set these for users to use
 set(IMGUI_SFML_INCLUDE_DIRS
@@ -118,5 +118,6 @@ target_link_libraries(${EXECUTABLE_NAME} ${OPENGL_gl_LIBRARY})
 
 #Add all Media files to Build Directory
 file(COPY ${PROJECT_SOURCE_DIR}/Media DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+file(COPY ${PROJECT_SOURCE_DIR}/saves DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 target_link_libraries(${EXECUTABLE_NAME} ${SFML_LIBRARIES} ${SFML_DEPENDENCIES})

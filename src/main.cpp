@@ -1,157 +1,182 @@
 #include <iostream>
-#include "map.hpp"
+#include <fstream>
 #include "imgui.h"
 #include "imgui-SFML.h"
 
 #include <SFML/Graphics.hpp>
 #include <SFML/System/Clock.hpp>
 #include <SFML/Window/Event.hpp>
-#include <SFML/Graphics/CircleShape.hpp>
+
+#include "TileMap.h"
 
 int main()
 {
-	sf::RenderWindow App(sf::VideoMode(1280, 770, 32), "City Builder");
-	App.setFramerateLimit(60);
-	ImGui::CreateContext();
-	ImGui::SFML::Init(App);
+        sf::RenderWindow App(sf::VideoMode(1280, 720, 32), "City Builder");
+        App.setFramerateLimit(60);
+        ImGui::CreateContext();
+        ImGui::SFML::Init(App);
 
-	std::ifstream file("map.txt");
-	Map* map;
-	int map_size = 10;
-	if(file.is_open()) {
-		map = new Map(file);
-		map_size = map->get_map_size();
-	}
-	else{
-		map = new Map(map_size);
-	}
+        bool ctrl_hold = false;
+        int type_id = 0;
 
+        sf::Color bgColor;
+        float color[3] = { 60.f/255.f, 60.f/255.f, 60.f/255.f };
 
+        bgColor.r = static_cast<sf::Uint8>(color[0] * 255.f);
+        bgColor.g = static_cast<sf::Uint8>(color[1] * 255.f);
+        bgColor.b = static_cast<sf::Uint8>(color[2] * 255.f);
 
-	bool ctrl_hold = false;
-	int type_id = 0;
+        sf::Clock deltaClock;
+        char windowTitle[255] = "City Builder";
 
-	sf::Color bgColor;
-	float color[3] = { 33.f/255.f, 33.f/255.f, 33.f/255.f };
-	sf::Clock deltaClock;
-	char windowTitle[255] = "ImGui + SFML = <3";
+        TileMap map(sf::Vector2i(10,10), sf::Vector2i(64,32), "Media/tileset.png");
+        map.load("saves/map.txt");
 
-	while(App.isOpen())
-	{
-		sf::Event Event;
-		while(App.pollEvent(Event))
-		{
-			ImGui::SFML::ProcessEvent(Event);
-			switch (Event.type)
-			{
-			case sf::Event::Closed:
-				map->save();
-				App.close();
-				break;
-			case sf::Event::KeyPressed:
-				if (Event.key.code == sf::Keyboard::Escape)
-				{
-					map->save();
-					App.close();
-				}
-				else if(Event.key.code == sf::Keyboard::LControl) {
-					ctrl_hold = true;
-				}
-				break;
-			case sf::Event::KeyReleased:
-				if(Event.key.code == sf::Keyboard::LControl) {
-					ctrl_hold = false;
-				}
-				break;
-			case sf::Event::MouseButtonPressed:
-				if(Event.mouseButton.button == sf::Mouse::Left) {
-					if(!ctrl_hold) {
-						for(std::vector<Tile*>::iterator it = map->tiles_selected.begin(); it != map->tiles_selected.end(); ++it) {
-							(*it)->sprite.setColor(sf::Color(255, 255, 255));
-						}
-						map->tiles_selected.clear();
-					}else if(Event.mouseButton.y<500) {
-						sf::Vector2i coord_map = map->screen_to_map(sf::Vector2i(Event.mouseButton.x, Event.mouseButton.y));
-						map->select_tile(coord_map);
-					}
+        sf::View view(sf::FloatRect(0, 0, 1280, 720));
+        view.setCenter(0, 32 * (10 / 2));
+        App.setView(view);
 
-				}
-				if(Event.mouseButton.button == sf::Mouse::Right) {
-					if(Event.mouseButton.y<500) {
-						if(type_id) {
-							sf::Vector2i coord_map = map->screen_to_map(sf::Vector2i(Event.mouseButton.x, Event.mouseButton.y));
-							map->set_tile_type(coord_map, type_id);
-						}
-					}
-				}
-				break;
-			default:
-				break;
-			}
-		}
+        int current_tile;
 
-		ImGui::SFML::Update(App, deltaClock.restart());
+        while(App.isOpen())
+        {
+                sf::Event Event;
 
-		ImGui::Begin("Sample window"); // begin window
+                // récupération de la position de la souris dans la fenêtre
+                sf::Vector2i pixelPos = sf::Mouse::getPosition(App);
 
-		// Background color edit
-		if (ImGui::ColorEdit3("Background color", color)) {
-			// this code gets called if color value changes, so
-			// the background color is upgraded automatically!
-			bgColor.r = static_cast<sf::Uint8>(color[0] * 255.f);
-			bgColor.g = static_cast<sf::Uint8>(color[1] * 255.f);
-			bgColor.b = static_cast<sf::Uint8>(color[2] * 255.f);
-		}
+                // conversion en coordonnées "monde"
+                sf::Vector2i position = (sf::Vector2i)App.mapPixelToCoords(pixelPos);
 
-// Window title text edit
-		if(ImGui::InputText("Window title", windowTitle, 255)) {
-			App.setTitle(windowTitle);
-		}
+                int screen_x = position.x - 64/2;
+                int screen_y = position.y;
 
-		// if (ImGui::Button("Update window title")) {
-		//      App.setTitle(windowTitle);
-		// }
+                float y = (float(screen_x) / float(64/2) + float(screen_y) / float(32/2)) /2.0;
+                float x = (float(screen_y) / float(32/2) -(float(screen_x) / float(64/2))) /2.0;
+                if((x >= map.get_map_size().x) || (y >= map.get_map_size().y) || (x < 0) || (y < 0)) {
+                        current_tile = -1;
+                }else{
+                        current_tile = (int)x * map.get_map_size().x + (int)y;
+                }
 
-		if(ImGui::InputInt("Map Size", &map_size)) {
-			map->change_map_size(map_size);
-			map_size = map->get_map_size();
-		}
+                while(App.pollEvent(Event))
+                {
+                        ImGui::SFML::ProcessEvent(Event);
+                        switch (Event.type)
+                        {
+                        case sf::Event::Closed:
+                                App.close();
+                                break;
+                        case sf::Event::KeyPressed:
+                                if (Event.key.code == sf::Keyboard::Escape)
+                                {
+                                        App.close();
+                                }
+                                if(Event.key.code == sf::Keyboard::Left) {
+                                        view.move(-32, 0);
+                                        App.setView(view);
+                                }
+                                if(Event.key.code == sf::Keyboard::Right) {
+                                        view.move(32, 0);
+                                        App.setView(view);
+                                }
+                                if(Event.key.code == sf::Keyboard::Up) {
+                                        view.move(0, -32);
+                                        App.setView(view);
+                                }
+                                if(Event.key.code == sf::Keyboard::Down) {
+                                        view.move(0, 32);
+                                        App.setView(view);
+                                }
+                                break;
+                        case sf::Event::KeyReleased:
+                                if(Event.key.code == sf::Keyboard::LControl) {
+                                }
+                                break;
+                        case sf::Event::MouseButtonPressed:
+                                if(Event.mouseButton.button == sf::Mouse::Left) {
+                                        if(current_tile>-1) {
+                                                map.update(current_tile, type_id);
+                                        }
+                                }
+                                if(Event.mouseButton.button == sf::Mouse::Right) {
+                                }
+                                break;
+                        default:
+                                break;
+                        }
+                }
 
-		if (ImGui::TreeNode("Tile Brush Type Selection"))
-		{
-			static int selected = 0;
-			for (int n = 0; n < 2; n++)
-			{
-				char buf[32];
-				sprintf(buf, "Type %d", n);
-				if (ImGui::Selectable(buf, selected == n, 0, ImVec2(50,50))) {
-					selected = n;
-					type_id = n+1;
-				}
-				if ((n % 2) < 1) ImGui::SameLine();
-			}
-			ImGui::TreePop();
-		}
+                ImGui::SFML::Update(App, deltaClock.restart());
 
-		ImGuiIO& io = ImGui::GetIO();
-		if (ImGui::IsMousePosValid())
-			ImGui::Text("Mouse pos: (%g, %g)", io.MousePos.x, io.MousePos.y);
-		else
-			ImGui::Text("Mouse pos: <INVALID>");
+                ImGui::Begin("Sample window"); // begin window
 
+                // Background color edit
+                if (ImGui::ColorEdit3("Background color", color)) {
+                        // this code gets called if color value changes, so
+                        // the background color is upgraded automatically!
+                        bgColor.r = static_cast<sf::Uint8>(color[0] * 255.f);
+                        bgColor.g = static_cast<sf::Uint8>(color[1] * 255.f);
+                        bgColor.b = static_cast<sf::Uint8>(color[2] * 255.f);
+                }
 
+                // Window title text edit
+                if(ImGui::InputText("Window title", windowTitle, 255)) {
+                        App.setTitle(windowTitle);
+                }
 
-		ImGui::End(); // end window
+                // if (ImGui::Button("Update window title")) {
+                //      App.setTitle(windowTitle);
+                // }
 
-		App.clear(bgColor);
+                // if(ImGui::InputInt("Map Size", &something)) {
+                // }
 
-		App.draw(*map);
+                ImGui::Text("Map_size (width,height): %d, %d", map.get_map_size().x, map.get_map_size().y);
 
-		ImGui::SFML::Render(App);
+                if (ImGui::TreeNode("Tile Brush Type Selection"))
+                {
+                        static int selected = 0;
+                        for (int n = 0; n < 4; n++)
+                        {
+                                char buf[32];
+                                sprintf(buf, "Type %d", n);
 
-		App.display();
+                                if (ImGui::Selectable(buf, selected == n, 0)) {
+                                        selected = n;
+                                        type_id = n;
+                                }
+                        }
+                        ImGui::TreePop();
+                }
 
-	}
+                if (ImGui::IsMousePosValid()) {
+                        ImGui::Text("Mouse pos: (%d, %d)", screen_x, screen_y);
+                }
+                else
+                        ImGui::Text("Mouse pos: <INVALID>");
 
-	ImGui::SFML::Shutdown();
+                ImGui::Text("Tile (x,y): (%d, %d)", (int)x, (int)y);
+
+                ImGui::Text("Tile Index: %d", current_tile);
+
+                if(current_tile>-1) {
+                        ImGui::Text("Tile Type: %d", map.get_tile_type(current_tile));
+                }else{
+                        ImGui::Text("Tile Type: None");
+                }
+
+                ImGui::End(); // end window
+
+                App.clear(bgColor);
+
+                App.draw(map);
+
+                ImGui::SFML::Render(App);
+
+                App.display();
+
+        }
+        map.save("saves/map.txt");
+        ImGui::SFML::Shutdown();
 }
