@@ -76,7 +76,7 @@ bool TileMap::update(int tileNumber, int type_id){
 
         this->level[tileNumber] = type_id;
         int tu = type_id % (m_tileset.getSize().x / this->tile_size.x);
-        int tv = 0 / (m_tileset.getSize().x / this->tile_size.x);
+        int tv = type_id / (m_tileset.getSize().x / this->tile_size.x);
 
         // get a pointer to the current tile's quad
         sf::Vertex* quad = &m_vertices[tileNumber * 4];
@@ -86,10 +86,7 @@ bool TileMap::update(int tileNumber, int type_id){
         quad[2].texCoords = sf::Vector2f((tu + 1) * this->tile_size.x, (tv + 1) * this->tile_size.y);
         quad[3].texCoords = sf::Vector2f(tu * this->tile_size.x, (tv + 1) * this->tile_size.y);
         // Change Vertex Color
-        // quad[0].color = sf::Color(50, 50, 50, 255);
-        // quad[1].color = sf::Color(50, 50, 50, 255);
-        // quad[2].color = sf::Color(50, 50, 50, 255);
-        // quad[3].color = sf::Color(50, 50, 50, 255);
+
 }
 
 bool TileMap::save(const std::string& map_file){
@@ -108,4 +105,72 @@ bool TileMap::save(const std::string& map_file){
         }
         file.close();
         return true;
+}
+
+void TileMap::set_tile_color_as_selected(int tile_id){
+        sf::Vertex* quad = &m_vertices[tile_id * 4];
+        // Change Vertex Color
+        quad[0].color = sf::Color(150, 150, 150, 255);
+        quad[1].color = sf::Color(150, 150, 150, 255);
+        quad[2].color = sf::Color(150, 150, 150, 255);
+        quad[3].color = sf::Color(150, 150, 150, 255);
+}
+
+void TileMap::clear_tiles_selected(){
+        for(auto it = this->tiles_selected.begin(); it != this->tiles_selected.end(); ++it) {
+                sf::Vertex* quad = &m_vertices[*it * 4];
+
+                quad[0].color = sf::Color(255, 255, 255, 255);
+                quad[1].color = sf::Color(255, 255, 255, 255);
+                quad[2].color = sf::Color(255, 255, 255, 255);
+                quad[3].color = sf::Color(255, 255, 255, 255);
+        }
+        this->tiles_selected.clear();
+}
+
+void TileMap::select_tile(int tile_id){
+        if (std::find(this->tiles_selected.begin(), this->tiles_selected.end(), tile_id) == this->tiles_selected.end()) {
+                this->tiles_selected.push_back(tile_id);
+                this->set_tile_color_as_selected(tile_id);
+        }
+}
+
+void TileMap::select_line_tile(int start_tile, int end_tile){
+
+        int start_tile_x = start_tile / this->map_size.x;
+        int start_tile_y = start_tile % this->map_size.x;
+        int end_tile_x = end_tile / this->map_size.x;
+        int end_tile_y = end_tile % this->map_size.x;
+
+        int diff_x = abs(start_tile_x - end_tile_x);
+        int diff_y = abs(start_tile_y - end_tile_y);
+
+        sf::Vector2i top_left(std::min(start_tile_x, end_tile_x), std::min(start_tile_y, end_tile_y));
+        sf::Vector2i bottom_right(std::max(start_tile_x, end_tile_x), std::max(start_tile_y, end_tile_y));
+
+        if(diff_x <= diff_y) {
+                for(int i = top_left.y; i<=bottom_right.y; i++) {
+                        select_tile(start_tile_x * this->map_size.x + i);
+                }
+        }else{
+                for(int i = top_left.x; i<=bottom_right.x; i++) {
+                        select_tile(i * this->map_size.x + start_tile_y);
+                }
+        }
+}
+
+void TileMap::select_rectangle_tile(int start_tile, int end_tile){
+        int start_tile_x = start_tile / this->map_size.x;
+        int start_tile_y = start_tile % this->map_size.x;
+        int end_tile_x = end_tile / this->map_size.x;
+        int end_tile_y = end_tile % this->map_size.x;
+
+        sf::Vector2i top_left(std::min(start_tile_x, end_tile_x), std::min(start_tile_y, end_tile_y));
+        sf::Vector2i bottom_right(std::max(start_tile_x, end_tile_x), std::max(start_tile_y, end_tile_y));
+
+        for(int i = top_left.x; i<= bottom_right.x; i++) {
+                for(int j = top_left.y; j<= bottom_right.y; j++) {
+                        select_tile(i * this->map_size.x + j);
+                }
+        }
 }

@@ -5,9 +5,11 @@
 #include <fstream>
 #include <SFML/Graphics.hpp>
 
-class TileMap : public sf::Drawable, public sf::Transformable
-{
+class TileMap : public sf::Drawable, public sf::Transformable {
 private:
+
+
+int* level;
 
 sf::VertexArray m_vertices;
 sf::Texture m_tileset;
@@ -29,7 +31,7 @@ virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const {
 
 public:
 
-int* level;
+std::vector<int> tiles_selected;
 
 TileMap(sf::Vector2i map_size, sf::Vector2i tile_size, const std::string& tileset);
 ~TileMap();
@@ -41,6 +43,12 @@ int get_tile_type(int tile_id) const;
 bool load(const std::string& map_file);
 bool update(int tileNumber, int type_id);
 bool save(const std::string& map_file);
+
+void set_tile_color_as_selected(int tile_id);
+void clear_tiles_selected();
+void select_tile(int tile_id);
+void select_line_tile(int start_tile, int end_tile);
+void select_rectangle_tile(int start_tile, int end_tile);
 
 };
 

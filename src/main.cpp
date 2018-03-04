@@ -36,7 +36,10 @@ int main()
         view.setCenter(0, 32 * (10 / 2));
         App.setView(view);
 
-        int current_tile;
+        int current_tile = -1;
+        bool selection_state = false;
+        int selection_mode = 1;
+        int first_tile_selected;
 
         while(App.isOpen())
         {
@@ -64,6 +67,13 @@ int main()
                         ImGui::SFML::ProcessEvent(Event);
                         switch (Event.type)
                         {
+                        case sf::Event::Resized:
+                        {
+                                // on met à jour la vue, avec la nouvelle taille de la fenêtre
+                                view.setSize(Event.size.width, Event.size.height);
+                                App.setView(view);
+                        }
+                        break;
                         case sf::Event::Closed:
                                 App.close();
                                 break;
@@ -96,14 +106,33 @@ int main()
                         case sf::Event::MouseButtonPressed:
                                 if(Event.mouseButton.button == sf::Mouse::Left) {
                                         if(current_tile>-1) {
-                                                map.update(current_tile, type_id);
+                                                selection_state = true;
+                                                first_tile_selected = current_tile;
                                         }
                                 }
                                 if(Event.mouseButton.button == sf::Mouse::Right) {
                                 }
                                 break;
+                        case sf::Event::MouseButtonReleased:
+                                if(Event.mouseButton.button == sf::Mouse::Left) {
+                                        selection_state = false;
+                                        for(auto it = map.tiles_selected.begin(); it != map.tiles_selected.end(); ++it) {
+                                                map.update(*it, type_id);
+                                        }
+                                        map.clear_tiles_selected();
+                                }
+                                break;
                         default:
                                 break;
+                        }
+                }
+
+                if(selection_state && (current_tile != -1)) {
+                        map.clear_tiles_selected();
+                        if(selection_mode == 0) {
+                                map.select_line_tile(first_tile_selected, current_tile);
+                        }else if(selection_mode == 1) {
+                                map.select_rectangle_tile(first_tile_selected, current_tile);
                         }
                 }
 
@@ -134,7 +163,21 @@ int main()
 
                 ImGui::Text("Map_size (width,height): %d, %d", map.get_map_size().x, map.get_map_size().y);
 
-                if (ImGui::TreeNode("Tile Brush Type Selection"))
+                if (ImGui::TreeNode("Tile Brush Selection"))
+                {
+                        static int selected = 0;
+                        if (ImGui::Selectable("Line", selected == 0, 0)) {
+                                selected = 0;
+                                selection_mode = 0;
+                        }
+                        if (ImGui::Selectable("Rectangle", selected == 1, 0)) {
+                                selected = 1;
+                                selection_mode = 1;
+                        }
+                        ImGui::TreePop();
+                }
+
+                if (ImGui::TreeNode("Tile Type Selection"))
                 {
                         static int selected = 0;
                         for (int n = 0; n < 4; n++)
