@@ -165,7 +165,7 @@ int main()
 
                 if (ImGui::TreeNode("Tile Brush Selection"))
                 {
-                        static int selected = 0;
+                        static int selected = selection_mode;
                         if (ImGui::Selectable("Line", selected == 0, 0)) {
                                 selected = 0;
                                 selection_mode = 0;
