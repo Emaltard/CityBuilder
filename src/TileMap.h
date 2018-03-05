@@ -32,13 +32,15 @@ virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const {
 public:
 
 std::vector<int> tiles_selected;
-
+TileMap(sf::Vector2i tile_size, const std::string& tileset, const std::string& map_file);
 TileMap(sf::Vector2i map_size, sf::Vector2i tile_size, const std::string& tileset);
 ~TileMap();
 
 sf::Vector2i get_map_size() const;
 sf::Vector2i get_tile_size() const;
 int get_tile_type(int tile_id) const;
+
+void change_map_size(sf::Vector2i map_size);
 
 bool load(const std::string& map_file);
 bool update(int tileNumber, int type_id);

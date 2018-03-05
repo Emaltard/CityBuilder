@@ -29,11 +29,13 @@ int main()
         sf::Clock deltaClock;
         char windowTitle[255] = "City Builder";
 
-        TileMap map(sf::Vector2i(10,10), sf::Vector2i(64,32), "Media/tileset.png");
-        map.load("saves/map.txt");
+        TileMap map(sf::Vector2i(64,32), "Media/tileset.png", "saves/map.txt");
+        //TileMap map(sf::Vector2i(10,10), sf::Vector2i(64,32), "Media/tileset.png");
+
+        int map_size = map.get_map_size().x;
 
         sf::View view(sf::FloatRect(0, 0, 1280, 720));
-        view.setCenter(0, 32 * (10 / 2));
+        view.setCenter(0, map.get_tile_size().y * (map.get_map_size().x / 2));
         App.setView(view);
 
         int current_tile = -1;
@@ -136,6 +138,7 @@ int main()
                         }
                 }
 
+
                 ImGui::SFML::Update(App, deltaClock.restart());
 
                 ImGui::Begin("Sample window"); // begin window
@@ -154,12 +157,17 @@ int main()
                         App.setTitle(windowTitle);
                 }
 
-                // if (ImGui::Button("Update window title")) {
-                //      App.setTitle(windowTitle);
-                // }
+                if (ImGui::Button("Reset View Position")) {
+                        view = App.getDefaultView();
+                        view.setCenter(0, map.get_tile_size().y * (map.get_map_size().x / 2));
+                        App.setView(view);
+                }
 
-                // if(ImGui::InputInt("Map Size", &something)) {
-                // }
+                if(ImGui::InputInt("Map Size", &map_size)) {
+                }
+                if (ImGui::Button("Set Map Size")) {
+                        map.change_map_size(sf::Vector2i(map_size,map_size));
+                }
 
                 ImGui::Text("Map_size (width,height): %d, %d", map.get_map_size().x, map.get_map_size().y);
 
