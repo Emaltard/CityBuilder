@@ -43,19 +43,10 @@ int main()
         int selection_mode = 1;
         int first_tile_selected;
 
-        sf::Clock clock; // démarre le chrono
-        sf::Time elapsed1, elapsed2, elapsed3, elapsed4;
-        elapsed1 = clock.getElapsedTime();
-        elapsed2 = clock.getElapsedTime();
-        elapsed3 = clock.getElapsedTime();
-        elapsed4 = clock.getElapsedTime();
-        float moy_render = 0;
+        ImGuiIO &io = ImGui::GetIO();
 
         while (App.isOpen())
         {
-                elapsed1 = clock.getElapsedTime();
-                clock.restart();
-
                 sf::Event Event;
 
                 // récupération de la position de la souris dans la fenêtre
@@ -81,75 +72,78 @@ int main()
                 while (App.pollEvent(Event))
                 {
                         ImGui::SFML::ProcessEvent(Event);
-                        switch (Event.type)
+                        if (!io.WantCaptureMouse)
                         {
-                        case sf::Event::Resized:
-                        {
-                                // on met à jour la vue, avec la nouvelle taille de la fenêtre
-                                view.setSize(Event.size.width, Event.size.height);
-                                App.setView(view);
-                        }
-                        break;
-                        case sf::Event::Closed:
-                                App.close();
-                                break;
-                        case sf::Event::KeyPressed:
-                                if (Event.key.code == sf::Keyboard::Escape)
+                                switch (Event.type)
                                 {
+                                case sf::Event::Resized:
+                                {
+                                        // on met à jour la vue, avec la nouvelle taille de la fenêtre
+                                        view.setSize(Event.size.width, Event.size.height);
+                                        App.setView(view);
+                                }
+                                break;
+                                case sf::Event::Closed:
                                         App.close();
-                                }
-                                if (Event.key.code == sf::Keyboard::Left)
-                                {
-                                        view.move(-32, 0);
-                                        App.setView(view);
-                                }
-                                if (Event.key.code == sf::Keyboard::Right)
-                                {
-                                        view.move(32, 0);
-                                        App.setView(view);
-                                }
-                                if (Event.key.code == sf::Keyboard::Up)
-                                {
-                                        view.move(0, -32);
-                                        App.setView(view);
-                                }
-                                if (Event.key.code == sf::Keyboard::Down)
-                                {
-                                        view.move(0, 32);
-                                        App.setView(view);
-                                }
-                                break;
-                        case sf::Event::KeyReleased:
-                                if (Event.key.code == sf::Keyboard::LControl)
-                                {
-                                }
-                                break;
-                        case sf::Event::MouseButtonPressed:
-                                if (Event.mouseButton.button == sf::Mouse::Left)
-                                {
-                                        if (current_tile > -1)
+                                        break;
+                                case sf::Event::KeyPressed:
+                                        if (Event.key.code == sf::Keyboard::Escape)
                                         {
-                                                selection_state = true;
-                                                first_tile_selected = current_tile;
+                                                App.close();
                                         }
-                                }
-                                if (Event.mouseButton.button == sf::Mouse::Right)
-                                {
-                                }
-                                break;
-                        case sf::Event::MouseButtonReleased:
-                                if (Event.mouseButton.button == sf::Mouse::Left)
-                                {
-                                        selection_state = false;
-                                        for (auto it = map.tiles_selected.begin(); it != map.tiles_selected.end(); ++it)
+                                        if (Event.key.code == sf::Keyboard::Left)
                                         {
-                                                map.update(*it, type_id);
+                                                view.move(-32, 0);
+                                                App.setView(view);
                                         }
-                                        map.clear_tiles_selected();
+                                        if (Event.key.code == sf::Keyboard::Right)
+                                        {
+                                                view.move(32, 0);
+                                                App.setView(view);
+                                        }
+                                        if (Event.key.code == sf::Keyboard::Up)
+                                        {
+                                                view.move(0, -32);
+                                                App.setView(view);
+                                        }
+                                        if (Event.key.code == sf::Keyboard::Down)
+                                        {
+                                                view.move(0, 32);
+                                                App.setView(view);
+                                        }
+                                        break;
+                                case sf::Event::KeyReleased:
+                                        if (Event.key.code == sf::Keyboard::LControl)
+                                        {
+                                        }
+                                        break;
+                                case sf::Event::MouseButtonPressed:
+                                        if (Event.mouseButton.button == sf::Mouse::Left)
+                                        {
+                                                if (current_tile > -1)
+                                                {
+                                                        selection_state = true;
+                                                        first_tile_selected = current_tile;
+                                                }
+                                        }
+                                        if (Event.mouseButton.button == sf::Mouse::Right)
+                                        {
+                                        }
+                                        break;
+                                case sf::Event::MouseButtonReleased:
+                                        if (Event.mouseButton.button == sf::Mouse::Left)
+                                        {
+                                                selection_state = false;
+                                                for (auto it = map.tiles_selected.begin(); it != map.tiles_selected.end(); ++it)
+                                                {
+                                                        map.update(*it, type_id);
+                                                }
+                                                map.clear_tiles_selected();
+                                        }
+                                        break;
+                                default:
+                                        break;
                                 }
-                                break;
-                        default:
-                                break;
                         }
                 }
 
@@ -256,23 +250,16 @@ int main()
                         ImGui::Text("Tile Type: None");
                 }
 
-                ImGui::ProgressBar(0.1);
                 ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 
-                ImGui::DrawRectFilled(sf::FloatRect(0, 0, elapsed1.asMilliseconds() * 50, 15), sf::Color(60, 60, 255));
-                ImGui::NewLine();
-                ImGui::DrawRectFilled(sf::FloatRect(0, 0, (elapsed3.asMilliseconds() - elapsed2.asMilliseconds()) * 50, 15), sf::Color(255, 60, 60));
-                ImGui::DrawRectFilled(sf::FloatRect((elapsed3.asMilliseconds() - elapsed2.asMilliseconds()) * 50, 0, (elapsed1.asMilliseconds() - elapsed4.asMilliseconds()) * 50, 15), sf::Color(60, 255, 60));
+                ImGui::Text("Mouse on ImGui window: %s", io.WantCaptureMouse ? "true" : "false");
+
                 ImGui::End(); // end window
 
                 App.clear(bgColor);
-
-                elapsed2 = clock.getElapsedTime();
                 App.draw(map);
-                elapsed3 = clock.getElapsedTime();
                 ImGui::SFML::Render(App);
 
-                elapsed4 = clock.getElapsedTime();
                 App.display();
         }
         map.save("saves/map.txt");
